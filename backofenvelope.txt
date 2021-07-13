@@ -1,0 +1,72 @@
+the average result of 1000 runs of bitsliced sha256 vs normal sha.
+All inputs on the bitsliced sha256 are split into 256 chunks.
+
+bitsliced sha256 1MB file = 4460372 CPU Cycles, 1764000ns
+sha256 1MB file = 10936484 CPU Cycles, 4551600ns
+
+This results into 10936484 / 4460372 = 2.45
+bitsliced sha256 is 2.45 times faster than sha256 with the 1MB file
+
+bitsliced sha256 512KB = 2224639 CPU Cycles, 1598400ns
+sha256 512KB file = 5346918 CPU Cycles, 2242300ns
+
+This results into 5346918 / 2224639 = 2.40
+bitsliced sha256 is 2.40 times faster than sha256 with the 500KB file
+
+bitsliced sha256 256KB file = 1141699 CPU Cycles, 443800ns
+sha256 256KB file = 2643192 CPU Cycles, 1110300ns
+
+This results into 2643192 / 1141699 = 2.32
+bitsliced sha256 is 2.32 times faster than sha256 with the 256KB file
+
+bitsliced sha256 128KB file = 615423 CPU Cycles, 234700ns
+sha256 128KB file = 1589241 CPU Cycles, 554000ns
+
+This results into 1589241 / 615423 = 2.58
+bitsliced sha256 is 2.58 times faster than sha256 with the 128KB file
+
+bitsliced sha256 64KB file = 392109 CPU Cycles, 134300ns
+sha256 64KB file = 816225 CPU Cycles, 276800ns
+
+This results into 816225 / 392109 = 2.08
+bitsliced sha256 is 2.08 times faster than sha256 with the 64KB file
+
+bitsliced sha256 32KB file = 183478 CPU Cycles, 81900ns
+sha256 32KB file = 363392 CPU Cycles, 138700ns
+
+This results into 363392 / 183478 = 1.98
+bitsliced sha256 is 1.98 times faster than sha256 with the 32KB file
+
+bitsliced sha256 16KB file = 134065 CPU Cycles, 57000ns
+sha256 16KB file = 181986 CPU Cycles, 69700ns
+
+This results into 181986 / 129129 = 1.41
+bitsliced sha256 is 1.41 times faster than sha256 with the 16KB file
+
+bitsliced sha256 8KB file = 76866 CPU Cycles, 32200ns
+sha256 8KB file = 95508 CPU Cycles, 34500ns
+
+This results into 181986 / 129129 = 1.24
+bitsliced sha256 is 1.24 times faster than sha256 with the 8KB file
+
+Next 3 tests will be done by inputting 256 different strings 3 times, first time the strings have length 16, second time 8 and third time 5.
+This is done for bitsliced sha256, for the normal sha256 we will perform 256 consecutive runs which eventually will give us the same hashes and we will benchmark the results.
+
+bitsliced sha256 256 * length 16 strings equal to 4KB file = 58158 CPU Cycles
+sha256 256 runs of a 16 length string equal to 4KB file file = 320582 CPU Cycles
+
+This results into 320582 / 58158 = 5.51
+bitsliced sha256 is 5.51 times faster than sha256 with the 256 * 16 input
+
+bitsliced sha256 256 * length 8 strings equal to 2KB file = 56798 CPU Cycles
+sha256 256 runs of a 8 length string equal to 2KB file file = 317132 CPU Cycles
+
+This results into 317132 / 56798 = 5.58
+bitsliced sha256 is 5.58 times faster than sha256 with the 256 * 8 input
+
+bitsliced sha256 256 * length 5 strings equal to a roughly 1KB file = 56618 CPU Cycles
+sha256 256 runs of a 5 length string equal to a roughly 1KB file file = 311734 CPU Cycles
+
+This results into 311734 / 56618 = 5.51
+bitsliced sha256 is 5.51 times faster than sha256 with the 256 * 5 input
+
