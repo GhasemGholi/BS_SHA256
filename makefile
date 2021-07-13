@@ -20,6 +20,7 @@ $(PRGM): $(OBJS)
 
 
 test_largeinput:
+	for i in `seq 1 1000`; do ./$(PRGM) 8kb_input.txt $$i; done;
 	for i in `seq 1 1000`; do ./$(PRGM) 16kb_input.txt $$i; done;
 	for i in `seq 1 1000`; do ./$(PRGM) 32kb_input.txt $$i; done;
 	for i in `seq 1 1000`; do ./$(PRGM) 64kb_input.txt $$i; done;
