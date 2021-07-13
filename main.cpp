@@ -90,18 +90,20 @@ int main(int argc, char *argv[]){
         split_into_256_chunks(splitted_input, r_file);
         sha.parse_text(r_file, len);
         sha.pre_processing(hashed);
+        parse_text_bssha(splitted_input, len / 256);
     }
 
-    parse_text_bssha(splitted_input, len);
 
-    pre_processing_bs(hashed_bs);
 
     if(!isFile){
         for(uint32_t i = 0; i < 256; i++){
             sha.parse_text(splitted_input[i], len);
             sha.pre_processing(hashed);
         }
+        parse_text_bssha(splitted_input, len);
     }
+
+    pre_processing_bs(hashed_bs);
 
     if(isFile){
         if(argc > 2 && strlen(argv[2]) < 4){
