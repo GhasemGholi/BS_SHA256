@@ -56,7 +56,6 @@ int main(int argc, char *argv[]){
     string splitted_input[256];
     if(strcmp(argv[1], "test5") == 0){
         // 5 char input
-        cout << " IAM HERe" << endl;
         isFile = false;
         string input[256] = {"stare","avoid","exist","enter","lower","smile","share","creep","break","plead","apply","leave","guess","trace","spell","incur","stand","upset","price","mount","start","strip","shine","worry","quote","drift","value","speak","teach","smash","flash","crack","begin","drive","dream","sweep","phone","treat","train","claim","crash","award","widen","prove","arise","state","delay","admit","twist","weigh", "bring","float","shout","sleep","hurry","sweep","fight","share","adapt","break","shift","prove","clean","score","spoil","going","plead","focus","cover","house","doubt","state","bound","smile","sense","learn","laugh","upset","worry","throw","limit","seize","lower","crush","block","drown","avoid","stick","enter","alert","check","write","argue","boast","drive","claim","admit","grant","blame","found", "equip","crush","swing","solve","frown","close","marry","judge","seize","react","dance","refer","adapt","shrug","crawl","value","apply","admit","flood","laugh","flash","waste","amend","house","stage","imply","smash","climb","place","burst","blame","arise","chase","phone","store","cease","plant","light","reply","price","steal","march","spell","stare","label","bring","found","carve","teach","voice", "award","creep","agree","drain","trust","spill","prove","shoot","crush","split","waste","greet","train","offer","twist","merge","spare","shake","shift","elect","price","unite","start","fancy","light","renew","equip","share","fight","lower","refer","round","think","press","dream","brush","knock","arise","imply","sweep","crack","grasp","admit","strip","quote","phone","raise","block","shrug","swear", "award","creep","agree","drain","trust","spill","prove","shoot","crush","split","waste","greet","train","offer","twist","merge","spare","shake","shift","elect","price","unite","start","fancy","light","renew","equip","share","fight","lower","refer","round","think","press","dream","brush","knock","arise","imply","sweep","crack","grasp","admit","strip","quote","phone","raise","block","shrug","swear", "Hello","Hello","Hello","Hello","Hello", "Hello"};   
         copy(input, input + 256, splitted_input);
@@ -81,9 +80,9 @@ int main(int argc, char *argv[]){
     uint32_t hashed[32];
 
     init_sha256();
-    sha256 sha;
 
     if(isFile){
+        sha256 sha;
         string r_file = read_file(argv[1]);
         string splitted_input[256];
 
@@ -93,12 +92,18 @@ int main(int argc, char *argv[]){
         parse_text_bssha(splitted_input, len / 256);
     }
 
-
-
     if(!isFile){
         for(uint32_t i = 0; i < 256; i++){
+            sha256 sha;
             sha.parse_text(splitted_input[i], len);
             sha.pre_processing(hashed);
+            #if 0 // print normal hash
+            cout << "pos " << i << " ";
+            for(uint32_t i = 0; i < 32; i++){
+                printf("%02x", hashed[i]);
+            }
+            cout << endl;
+            #endif
         }
         parse_text_bssha(splitted_input, len);
     }
