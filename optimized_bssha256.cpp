@@ -1,20 +1,4 @@
-#include "optimized_bssha256.hpp"
-#include <bitset>
-#include <cstring>
-#include <iomanip>
-#include <fmtmsg.h>
-#include "cpucycles.h"
-#include "x86cpuinfo.c"
-#include <fstream>
-#include <filesystem>
-#include <iterator>
-#include <vector>
-#include <numeric>
-#include <math.h>
-#include <cmath>
-#include <chrono>
-
-using namespace std;
+// this file is called in a tree level, so no need to include other files
 
 void init_sha256();
 void parse_text_bssha(const string* listofinput, uint32_t len);
@@ -29,13 +13,20 @@ uint32_t H[8]; // working variables
 __m256i bs_H[8][32]; // working variables bitsliced
 __m256i bs_K[64][32]; // working variables bitsliced
 
+// all the variables globally processed.
 __m256i a[32], b[32], c[32], d[32], e[32], f[32], g[32], h[32];
 __m256i first[32] = {0}, second[32] = {0}, third[32] = {0}, last[32] = {0}, sum1 = {0}, sum2 = {0}, carry = {0};
 __m256i t1[32] = {0}, t2[32] = {0}, temp1[32] = {0}, temp2[32] = {0}, temp3[32] = {0},temp4[32] = {0}, x[32] = {0}, y[32] = {0}, z[32] = {0};
 __m256i const1[32] = {0}, const2[32], X, Y;
 
+const __m256i always_zero[32] = {0};
+
 long long firstinfo_bs = 0;
 long long secondinfo_bs = 0;
+
+// /**
+//  * Memset all variables to 0 each iteration of processing, otherwise alot of garbage values will be put into the hash
+//  */
 
 void memset_all(){
     memset_256bit(a, _mm256_setzero_si256());
@@ -63,15 +54,10 @@ void memset_all(){
     memset_256bit(z, _mm256_setzero_si256());
 }
 
-#define copy_mm(A, B, i) _mm256_load_si256(A[i], B[i]);
 
-inline void copy_m256i(__m256i A[], const __m256i *B){
-    uint32_t i = 0;
-    while(i < 32){
-        A[i] = _mm256_load_si256(B);
-        i++;
-    }
-}
+// /**
+//  * Pre processing and padding the message schedule
+//  */
 
 void pre_processing_bs(__m256i text[32][32]){
     uint32_t len = L < 56 ? 56 : 64;
@@ -109,6 +95,10 @@ void pre_processing_bs(__m256i text[32][32]){
     }   
 }
 
+// /**
+//  * Initializes the SHA256 encryption
+//  */ 
+
 void init_sha256(){
     blocks = 0;
     L = 0;
@@ -134,62 +124,73 @@ void init_sha256(){
 using namespace std::chrono;
 
 double cummulative_time_bs = 0.0;
-    
+
+
+// /**
+//  * Main compression function that processes the SHA256 encryption
+//  *
+//  * @return Processes the Message schedule and returns the hash into the 8 working variables
+//  */ 
 void processing(){
     memset_all();
-    __m256i hashed_W[64][32];
 
     auto start_bs = high_resolution_clock::now();
     firstinfo_bs += cpucycles_x86cpuinfo();
 
-    memcpy_256bit(a, bs_H[0]);
-    memcpy_256bit(b, bs_H[1]);
-    memcpy_256bit(c, bs_H[2]);
-    memcpy_256bit(d, bs_H[3]);
-    memcpy_256bit(e, bs_H[4]);
-    memcpy_256bit(f, bs_H[5]);
-    memcpy_256bit(g, bs_H[6]);
-    memcpy_256bit(h, bs_H[7]);
+    // copy the bitsliced H into the 8 working variables
+    std::copy(bs_H[0], bs_H[0] + 32, a);
+    std::copy(bs_H[1], bs_H[1] + 32, b);
+    std::copy(bs_H[2], bs_H[2] + 32, c);
+    std::copy(bs_H[3], bs_H[3] + 32, d);
+    std::copy(bs_H[4], bs_H[4] + 32, e);
+    std::copy(bs_H[5], bs_H[5] + 32, f);
+    std::copy(bs_H[6], bs_H[6] + 32, g);
+    std::copy(bs_H[7], bs_H[7] + 32, h);
 
+    // prepare the message schedule for the first 16 bits
     for(uint32_t i = 0, j = 0; i < 16; ++i, j += 4){   
         memcpy_256bit_nbits(first, W[j], 24);
         memcpy_256bit_nbits(second, W[j + 1], 16);
         memcpy_256bit_nbits(third, W[j + 2], 8);
 
-        OR256(first, second, hashed_W[i]);
-        OR256(hashed_W[i], third, hashed_W[i]);
-        OR256(hashed_W[i], W[j + 3], hashed_W[i]);
+        OR256(first, second, W[i]);
+        OR256(W[i], third, W[i]);
+        OR256(W[i], W[j + 3], W[i]);
     }
-    
+
+    // extend the first 16 words into the rest of the message schedule
     for(uint32_t i = 16; i < 64; ++i) {
         SIGMA1();
         SIGMA0();
-        bitsliced_add(first, hashed_W[i - 7], third);
+        bitsliced_add(first, W[i - 7], third);
         bitsliced_add(second, third, third);
-        bitsliced_add(third, hashed_W[i - 16], hashed_W[i]);
+        bitsliced_add(third, W[i - 16], W[i]);
     }
 
-
+    // main compression function
     for (uint32_t i = 0; i < 64; ++i) {
         SIGMA3();
         bitsliced_add(first, h, second);
         CH256();
         bitsliced_add(second, third, third);
         bitsliced_add(third, bs_K[i], third);
-        bitsliced_add(third, hashed_W[i], t1);
+        bitsliced_add(third, W[i], t1);
         SIGMA2();
         MAJ256();
         bitsliced_add(first, second, t2);
         memcpy_256bit(h, g);
         memcpy_256bit(g, f);
         memcpy_256bit(f, e);
-        bitsliced_add(d, t1, e);
+
+        bitsliced_add(d, t1, e);    
+        
         memcpy_256bit(d, c);
         memcpy_256bit(c, b);
         memcpy_256bit(b, a);
         bitsliced_add(t1, t2, a);
     }
-
+    
+    // add the 8 working variables to the bitsliced H and store them in the bitsliced H array
     bitsliced_add(bs_H[0], a, bs_H[0]);
     bitsliced_add(bs_H[1], b, bs_H[1]); 
     bitsliced_add(bs_H[2], c, bs_H[2]);
@@ -206,6 +207,12 @@ void processing(){
     cummulative_time_bs += dur_bs.count();
 }
 
+// /**
+//  * Transposes the input into a bitsliced representation 256 times in parallel
+//  *
+//  * @param Array of strings that represent the input splitted into 256 parts before passing in this function, and the length of each chunk
+//  * @handles the parsing and processes it if len == 64
+//  */
 void parse_text_bssha(string *listofinput, uint32_t len){
     // 5 char input
     // string listofinput[256] = {"stare","avoid","exist","enter","lower","smile","share","creep","break","plead","apply","leave","guess","trace","spell","incur","stand","upset","price","mount","start","strip","shine","worry","quote","drift","value","speak","teach","smash","flash","crack","begin","drive","dream","sweep","phone","treat","train","claim","crash","award","widen","prove","arise","state","delay","admit","twist","weigh", "bring","float","shout","sleep","hurry","sweep","fight","share","adapt","break","shift","prove","clean","score","spoil","going","plead","focus","cover","house","doubt","state","bound","smile","sense","learn","laugh","upset","worry","throw","limit","seize","lower","crush","block","drown","avoid","stick","enter","alert","check","write","argue","boast","drive","claim","admit","grant","blame","found", "equip","crush","swing","solve","frown","close","marry","judge","seize","react","dance","refer","adapt","shrug","crawl","value","apply","admit","flood","laugh","flash","waste","amend","house","stage","imply","smash","climb","place","burst","blame","arise","chase","phone","store","cease","plant","light","reply","price","steal","march","spell","stare","label","bring","found","carve","teach","voice", "award","creep","agree","drain","trust","spill","prove","shoot","crush","split","waste","greet","train","offer","twist","merge","spare","shake","shift","elect","price","unite","start","fancy","light","renew","equip","share","fight","lower","refer","round","think","press","dream","brush","knock","arise","imply","sweep","crack","grasp","admit","strip","quote","phone","raise","block","shrug","swear", "award","creep","agree","drain","trust","spill","prove","shoot","crush","split","waste","greet","train","offer","twist","merge","spare","shake","shift","elect","price","unite","start","fancy","light","renew","equip","share","fight","lower","refer","round","think","press","dream","brush","knock","arise","imply","sweep","crack","grasp","admit","strip","quote","phone","raise","block","shrug","swear", "Hello","Hello","Hello","Hello","Hello", "Hello"};   
@@ -260,102 +267,4 @@ void parse_text_bssha(string *listofinput, uint32_t len){
         } 
     }
     #endif
-}
-
-[[maybe_unused]]
-void appendLineToFile(string filepath, string line){
-    std::ofstream file;
-    file.open(filepath, std::ios::out | std::ios::app);
-    if (file.fail())
-        throw std::ios_base::failure(std::strerror(errno));
-
-    file.exceptions(file.exceptions() | std::ios::failbit | std::ifstream::badbit);
-
-    file << line << std::endl;
-}
-
-string read_file(const char *fileinput){
-    ifstream ifs(fileinput, ios::in | ios::binary | ios::ate);
-
-    size_t fileSize = ifs.tellg();
-    ifs.seekg(0, ios::beg);
-    vector<char> bytes(fileSize);
-    ifs.read(bytes.data(), fileSize);
-
-    return string(bytes.data(), fileSize);
-}
-
-size_t len;
-static void split_into_256_chunks(string splitted[], string file){
-    len = file.size();
-    uint32_t restriction = len / 256;
-
-    int counter = 0;
-    for(uint32_t i = 0; i < len; i += restriction){
-        splitted[counter].append(file.substr(i, restriction));
-        counter++;
-    }
-}
-
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
-string BytesToString(long long size){
-    string suffix[7] = {"B", "KB", "MB", "GB", "TB", "PB", "EB" }; 
-    if (size == 0)
-        return "0" + suffix[0];
-    size_t bytes = abs(size);
-    double exponent = log(bytes) / log(1024);
-    uint32_t place = floor(exponent);
-    double num = nearbyint(bytes / pow(1024, place));
-    string s(to_string(static_cast<int>(sign(size) * num)));
-    s.append(suffix[place]);
-    return s;
-}
-
-void print_hashes(__m256i hashed[32][32]){
-    uint32_t result[32][8][32] = {0};
-    uint32_t tempval[32][8][32] = {0};
-    for(uint32_t i = 0; i < 32; i++){
-        for(uint32_t j = 0; j < 32; j++){
-            uint32_t *temp = (uint32_t*)&hashed[i][j];
-            result[i][0][j] = temp[0];
-            result[i][1][j] = temp[1];
-            result[i][2][j] = temp[2];
-            result[i][3][j] = temp[3];
-            result[i][4][j] = temp[4];
-            result[i][5][j] = temp[5];
-            result[i][6][j] = temp[6];
-            result[i][7][j] = temp[7];
-        }
-    }
-
-    for(uint32_t i = 0; i < 32; i++){
-        for(uint32_t j = 0; j < 8; j++){
-            transposeblock2bitslice(result[i][j], tempval[i][j]);
-        }
-    }
-    int counter = 0;
-    for(uint32_t i = 0; i < 8; i++){
-        for(uint32_t k = 0; k < 32; k++){
-            cout << dec << "Pos " << counter << " ";
-            for(uint32_t j = 0; j < 32; j++){
-                cout << setfill('0') << setw(2) << hex << tempval[j][i][k];
-            }
-            cout << endl;
-            counter++;
-        }
-        cout << endl;
-    }
-}
-
-void n_amount_charstofile(long long size){
-    std::ofstream file;
-    file.open("output.txt", std::ios::out | std::ios::trunc);
-    string s = "";
-    for(long long i = 0; i < size; i++){
-        s.push_back('a' + rand()%26);
-    }
-    file << s << std::endl;
 }
