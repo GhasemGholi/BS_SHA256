@@ -24,13 +24,9 @@ constexpr uint32_t K[64] = { // round constants
     0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-#define ZERO 0x00
-#define ONEBIT 0x80
-#define MAXPADSIZE 512
-#define ARRAYSIZE 64
-#define HASHSIZE 32
-
+//get a specific bit out of a uint32_t
 #define GET_BIT(value, index) value & (1 << index)
+//set a specific bit in a uint32_t
 #define SET_BIT(value, index, valueOfBit)  value &= ~(1 << index);\
                                            value |= valueOfBit; 
 // #if 
@@ -53,6 +49,7 @@ constexpr uint32_t K[64] = { // round constants
 #define AND256(A, B, result) result[0] = _mm256_and_si256(A[0], B[0]); result[1] = _mm256_and_si256(A[1], B[1]); result[2] = _mm256_and_si256(A[2], B[2]); result[3] = _mm256_and_si256(A[3], B[3]); result[4] = _mm256_and_si256(A[4], B[4]); result[5] = _mm256_and_si256(A[5], B[5]); result[6] = _mm256_and_si256(A[6], B[6]); result[7] = _mm256_and_si256(A[7], B[7]); result[8] = _mm256_and_si256(A[8], B[8]); result[9] = _mm256_and_si256(A[9], B[9]); result[10] = _mm256_and_si256(A[10], B[10]); result[11] = _mm256_and_si256(A[11], B[11]); result[12] = _mm256_and_si256(A[12], B[12]); result[13] = _mm256_and_si256(A[13], B[13]); result[14] = _mm256_and_si256(A[14], B[14]); result[15] = _mm256_and_si256(A[15], B[15]); result[16] = _mm256_and_si256(A[16], B[16]); result[17] = _mm256_and_si256(A[17], B[17]); result[18] = _mm256_and_si256(A[18], B[18]); result[19] = _mm256_and_si256(A[19], B[19]); result[20] = _mm256_and_si256(A[20], B[20]); result[21] = _mm256_and_si256(A[21], B[21]); result[22] = _mm256_and_si256(A[22], B[22]); result[23] = _mm256_and_si256(A[23], B[23]); result[24] = _mm256_and_si256(A[24], B[24]); result[25] = _mm256_and_si256(A[25], B[25]); result[26] = _mm256_and_si256(A[26], B[26]); result[27] = _mm256_and_si256(A[27], B[27]); result[28] = _mm256_and_si256(A[28], B[28]); result[29] = _mm256_and_si256(A[29], B[29]); result[30] = _mm256_and_si256(A[30], B[30]); result[31] = _mm256_and_si256(A[31], B[31]);
 #define ANDNOT256(A, B, result) result[0] = _mm256_andnot_si256(A[0], B[0]); result[1] = _mm256_andnot_si256(A[1], B[1]); result[2] = _mm256_andnot_si256(A[2], B[2]); result[3] = _mm256_andnot_si256(A[3], B[3]); result[4] = _mm256_andnot_si256(A[4], B[4]); result[5] = _mm256_andnot_si256(A[5], B[5]); result[6] = _mm256_andnot_si256(A[6], B[6]); result[7] = _mm256_andnot_si256(A[7], B[7]); result[8] = _mm256_andnot_si256(A[8], B[8]); result[9] = _mm256_andnot_si256(A[9], B[9]); result[10] = _mm256_andnot_si256(A[10], B[10]); result[11] = _mm256_andnot_si256(A[11], B[11]); result[12] = _mm256_andnot_si256(A[12], B[12]); result[13] = _mm256_andnot_si256(A[13], B[13]); result[14] = _mm256_andnot_si256(A[14], B[14]); result[15] = _mm256_andnot_si256(A[15], B[15]); result[16] = _mm256_andnot_si256(A[16], B[16]); result[17] = _mm256_andnot_si256(A[17], B[17]); result[18] = _mm256_andnot_si256(A[18], B[18]); result[19] = _mm256_andnot_si256(A[19], B[19]); result[20] = _mm256_andnot_si256(A[20], B[20]); result[21] = _mm256_andnot_si256(A[21], B[21]); result[22] = _mm256_andnot_si256(A[22], B[22]); result[23] = _mm256_andnot_si256(A[23], B[23]); result[24] = _mm256_andnot_si256(A[24], B[24]); result[25] = _mm256_andnot_si256(A[25], B[25]); result[26] = _mm256_andnot_si256(A[26], B[26]); result[27] = _mm256_andnot_si256(A[27], B[27]); result[28] = _mm256_andnot_si256(A[28], B[28]); result[29] = _mm256_andnot_si256(A[29], B[29]); result[30] = _mm256_andnot_si256(A[30], B[30]); result[31] = _mm256_andnot_si256(A[31], B[31]);
 
+//memset single __m256i to val
 static inline void * memset_256bit_single(void *dest, const __m256i val){
     __m256i *ptr = (__m256i*)dest;
     _mm256_storeu_si256(ptr++, val);
@@ -60,6 +57,7 @@ static inline void * memset_256bit_single(void *dest, const __m256i val){
     return dest;
 }
 
+//memset array __m256i of size 32 to val
 static inline void * memset_256bit(void *dest, const __m256i val){
     __m256i *ptr = (__m256i*)dest;
     uint8_t len = 32;
@@ -70,6 +68,17 @@ static inline void * memset_256bit(void *dest, const __m256i val){
     return dest;
 }
 
+//memset array __m256i of size 32 to val
+static inline void * memset_256bit_n(void *dest, const __m256i val, uint8_t from){
+    __m256i *ptr = (__m256i*)dest;
+    while (from++ < 32){
+        _mm256_storeu_si256(ptr++, val);
+    }
+
+    return dest;
+}
+
+//memcpy array of __m256i to other array of __m256i, both of size 32
 static inline void * memcpy_256bit(void *dest, const void *src){
     const __m256i* s = (__m256i*)src;
     __m256i* d = (__m256i*)dest;
@@ -81,23 +90,24 @@ static inline void * memcpy_256bit(void *dest, const void *src){
     return dest;
 }
 
+//memcpy array of __m256i to other array of __m256i, both of size 32, starting from a specified index
 static inline void * memcpy_256bit_nbits(void *dest, const void *src, size_t from){
     const __m256i* s = (__m256i*)src;
     __m256i* d = (__m256i*)dest;
     d += from;
-    uint8_t len = 32;
-    while (from++ < len){
+    while (from++ < 32){
         _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++));
     }
 
     return dest;
 }
 
-
+//macro that transposes a uint32_t to a bitsliced representation in the form of a  __m256i array
 #define BSCONST(value, result, i) result[i] = (value & (1 << i)) > 0 ? _mm256_set1_epi32(0xffffffff) : _mm256_setzero_si256();
 
 #define do_bsconst32(value, result) BSCONST(value, result, 0); BSCONST(value, result, 1); BSCONST(value, result, 2); BSCONST(value, result, 3); BSCONST(value, result, 4); BSCONST(value, result, 5); BSCONST(value, result, 6); BSCONST(value, result, 7); BSCONST(value, result, 8); BSCONST(value, result, 9); BSCONST(value, result, 10); BSCONST(value, result, 11); BSCONST(value, result, 12); BSCONST(value, result, 13); BSCONST(value, result, 14); BSCONST(value, result, 15); BSCONST(value, result, 16); BSCONST(value, result, 17); BSCONST(value, result, 18); BSCONST(value, result, 19); BSCONST(value, result, 20); BSCONST(value, result, 21); BSCONST(value, result, 22); BSCONST(value, result, 23); BSCONST(value, result, 24); BSCONST(value, result, 25); BSCONST(value, result, 26); BSCONST(value, result, 27); BSCONST(value, result, 28); BSCONST(value, result, 29); BSCONST(value, result, 30); BSCONST(value, result, 31)
 
+// this shifts the __m256i array to the right by indices and pads the leftover bits to 0
 static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], const uint32_t &shift){
     memset_256bit(result, _mm256_setzero_si256());
     for(uint32_t i = 0, j = shift; i < 32 - shift; i++, j++){
@@ -105,6 +115,7 @@ static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], cons
     }
 }
 
+// these macros shifts the __m256i array to the right by x(which are defined after pad_rs_*x indices and pads the leftover bits to 0
 #define pad_rs_3(old, result) result[0] = old[3]; result[1] = old[4]; result[2] = old[5]; result[3] = old[6]; result[4] = old[7]; result[5] = old[8]; result[6] = old[9]; result[7] = old[10]; result[8] = old[11]; result[9] = old[12]; result[10] = old[13]; result[11] = old[14]; result[12] = old[15]; result[13] = old[16]; result[14] = old[17]; result[15] = old[18]; result[16] = old[19]; result[17] = old[20]; result[18] = old[21]; result[19] = old[22]; result[20] = old[23]; result[21] = old[24]; result[22] = old[25]; result[23] = old[26]; result[24] = old[27]; result[25] = old[28]; result[26] = old[29]; result[27] = old[30]; result[28] = old[31]; result[29] = _mm256_setzero_si256(); result[30] = _mm256_setzero_si256(); result[31] = _mm256_setzero_si256();
 #define pad_rs_7(old, result) result[0] = old[7]; result[1] = old[8]; result[2] = old[9]; result[3] = old[10]; result[4] = old[11]; result[5] = old[12]; result[6] = old[13]; result[7] = old[14]; result[8] = old[15]; result[9] = old[16]; result[10] = old[17]; result[11] = old[18]; result[12] = old[19]; result[13] = old[20]; result[14] = old[21]; result[15] = old[22]; result[16] = old[23]; result[17] = old[24]; result[18] = old[25]; result[19] = old[26]; result[20] = old[27]; result[21] = old[28]; result[22] = old[29]; result[23] = old[30]; result[24] = old[31]; result[25] = _mm256_setzero_si256(); result[26] = _mm256_setzero_si256(); result[27] = _mm256_setzero_si256(); result[28] = _mm256_setzero_si256(); result[29] = _mm256_setzero_si256(); result[30] = _mm256_setzero_si256(); result[31] = _mm256_setzero_si256();
 #define pad_rs_18(old, result) result[0] = old[18]; result[1] = old[19]; result[2] = old[20]; result[3] = old[21]; result[4] = old[22]; result[5] = old[23]; result[6] = old[24]; result[7] = old[25]; result[8] = old[26]; result[9] = old[27]; result[10] = old[28]; result[11] = old[29]; result[12] = old[30]; result[13] = old[31]; result[14] = _mm256_setzero_si256(); result[15] = _mm256_setzero_si256(); result[16] = _mm256_setzero_si256(); result[17] = _mm256_setzero_si256(); result[18] = _mm256_setzero_si256(); result[19] = _mm256_setzero_si256(); result[20] = _mm256_setzero_si256(); result[21] = _mm256_setzero_si256(); result[22] = _mm256_setzero_si256(); result[23] = _mm256_setzero_si256(); result[24] = _mm256_setzero_si256(); result[25] = _mm256_setzero_si256(); result[26] = _mm256_setzero_si256(); result[27] = _mm256_setzero_si256(); result[28] = _mm256_setzero_si256(); result[29] = _mm256_setzero_si256(); result[30] = _mm256_setzero_si256(); result[31] = _mm256_setzero_si256();
@@ -118,6 +129,7 @@ static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], cons
 #define pad_rs_22(old, result) result[0] = old[22]; result[1] = old[23]; result[2] = old[24]; result[3] = old[25]; result[4] = old[26]; result[5] = old[27]; result[6] = old[28]; result[7] = old[29]; result[8] = old[30]; result[9] = old[31]; result[10] = _mm256_setzero_si256(); result[11] = _mm256_setzero_si256(); result[12] = _mm256_setzero_si256(); result[13] = _mm256_setzero_si256(); result[14] = _mm256_setzero_si256(); result[15] = _mm256_setzero_si256(); result[16] = _mm256_setzero_si256(); result[17] = _mm256_setzero_si256(); result[18] = _mm256_setzero_si256(); result[19] = _mm256_setzero_si256(); result[20] = _mm256_setzero_si256(); result[21] = _mm256_setzero_si256(); result[22] = _mm256_setzero_si256(); result[23] = _mm256_setzero_si256(); result[24] = _mm256_setzero_si256(); result[25] = _mm256_setzero_si256(); result[26] = _mm256_setzero_si256(); result[27] = _mm256_setzero_si256(); result[28] = _mm256_setzero_si256(); result[29] = _mm256_setzero_si256(); result[30] = _mm256_setzero_si256(); result[31] = _mm256_setzero_si256();
 #define pad_rs_25(old, result) result[0] = old[25]; result[1] = old[26]; result[2] = old[27]; result[3] = old[28]; result[4] = old[29]; result[5] = old[30]; result[6] = old[31]; result[7] = _mm256_setzero_si256(); result[8] = _mm256_setzero_si256(); result[9] = _mm256_setzero_si256(); result[10] = _mm256_setzero_si256(); result[11] = _mm256_setzero_si256(); result[12] = _mm256_setzero_si256(); result[13] = _mm256_setzero_si256(); result[14] = _mm256_setzero_si256(); result[15] = _mm256_setzero_si256(); result[16] = _mm256_setzero_si256(); result[17] = _mm256_setzero_si256(); result[18] = _mm256_setzero_si256(); result[19] = _mm256_setzero_si256(); result[20] = _mm256_setzero_si256(); result[21] = _mm256_setzero_si256(); result[22] = _mm256_setzero_si256(); result[23] = _mm256_setzero_si256(); result[24] = _mm256_setzero_si256(); result[25] = _mm256_setzero_si256(); result[26] = _mm256_setzero_si256(); result[27] = _mm256_setzero_si256(); result[28] = _mm256_setzero_si256(); result[29] = _mm256_setzero_si256(); result[30] = _mm256_setzero_si256(); result[31] = _mm256_setzero_si256(); 
 
+// these macros shifts the __m256i array to the left by x(which are defined after pad_rs_*x indices and pads the leftover bits to 0
 #define pad_ls_7(old, result) result[0] = _mm256_setzero_si256(); result[1] = _mm256_setzero_si256(); result[2] = _mm256_setzero_si256(); result[3] = _mm256_setzero_si256(); result[4] = _mm256_setzero_si256(); result[5] = _mm256_setzero_si256(); result[6] = _mm256_setzero_si256(); result[7] = _mm256_setzero_si256(); result[8] = _mm256_setzero_si256(); result[9] = _mm256_setzero_si256(); result[10] = _mm256_setzero_si256(); result[11] = _mm256_setzero_si256(); result[12] = _mm256_setzero_si256(); result[13] = _mm256_setzero_si256(); result[14] = _mm256_setzero_si256(); result[15] = _mm256_setzero_si256(); result[16] = _mm256_setzero_si256(); result[17] = _mm256_setzero_si256(); result[18] = _mm256_setzero_si256(); result[19] = _mm256_setzero_si256(); result[20] = _mm256_setzero_si256(); result[21] = _mm256_setzero_si256(); result[22] = _mm256_setzero_si256(); result[23] = _mm256_setzero_si256(); result[24] = _mm256_setzero_si256(); result[25] = old[0]; result[26] = old[1]; result[27] = old[2]; result[28] = old[3]; result[29] = old[4]; result[30] = old[5]; result[31] = old[6];
 #define pad_ls_18(old, result) result[0]= _mm256_setzero_si256(); result[1] = _mm256_setzero_si256(); result[2] = _mm256_setzero_si256(); result[3] = _mm256_setzero_si256(); result[4] = _mm256_setzero_si256(); result[5] = _mm256_setzero_si256(); result[6] = _mm256_setzero_si256(); result[7] = _mm256_setzero_si256(); result[8] = _mm256_setzero_si256(); result[9] = _mm256_setzero_si256(); result[10] = _mm256_setzero_si256(); result[11] = _mm256_setzero_si256(); result[12] = _mm256_setzero_si256(); result[13] = _mm256_setzero_si256(); result[14] = old[0]; result[15] = old[1]; result[16] = old[2]; result[17] = old[3]; result[18] = old[4]; result[19] = old[5]; result[20] = old[6]; result[21] = old[7]; result[22] = old[8]; result[23] = old[9]; result[24] = old[10]; result[25] = old[11]; result[26] = old[12]; result[27] = old[13]; result[28] = old[14]; result[29] = old[15]; result[30] = old[16]; result[31] = old[17]; 
 #define pad_ls_17(old, result) result[0] = _mm256_setzero_si256(); result[1] = _mm256_setzero_si256(); result[2] = _mm256_setzero_si256(); result[3] = _mm256_setzero_si256(); result[4] = _mm256_setzero_si256(); result[5] = _mm256_setzero_si256(); result[6] = _mm256_setzero_si256(); result[7] = _mm256_setzero_si256(); result[8] = _mm256_setzero_si256(); result[9] = _mm256_setzero_si256(); result[10] = _mm256_setzero_si256(); result[11] = _mm256_setzero_si256(); result[12] = _mm256_setzero_si256(); result[13] = _mm256_setzero_si256(); result[14] = _mm256_setzero_si256(); result[15] = old[0]; result[16] = old[1]; result[17] = old[2]; result[18] = old[3]; result[19] = old[4]; result[20] = old[5]; result[21] = old[6]; result[22] = old[7]; result[23] = old[8]; result[24] = old[9]; result[25] = old[10]; result[26] = old[11]; result[27] = old[12]; result[28] = old[13]; result[29] = old[14]; result[30] = old[15]; result[31] = old[16];
@@ -133,6 +145,9 @@ static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], cons
 #define pad_ls_22(old, result) result[0] = _mm256_setzero_si256(); result[1] = _mm256_setzero_si256(); result[2] = _mm256_setzero_si256(); result[3] = _mm256_setzero_si256(); result[4] = _mm256_setzero_si256(); result[5] = _mm256_setzero_si256(); result[6] = _mm256_setzero_si256(); result[7] = _mm256_setzero_si256(); result[8] = _mm256_setzero_si256(); result[9] = _mm256_setzero_si256(); result[10] = old[0]; result[11] = old[1]; result[12] = old[2]; result[13] = old[3]; result[14] = old[4]; result[15] = old[5]; result[16] = old[6]; result[17] = old[7]; result[18] = old[8]; result[19] = old[9]; result[20] = old[10]; result[21] = old[11]; result[22] = old[12]; result[23] = old[13]; result[24] = old[14]; result[25] = old[15]; result[26] = old[16]; result[27] = old[17]; result[28] = old[18]; result[29] = old[19]; result[30] = old[20]; result[31] = old[21];
 #define pad_ls_25(old, result) result[0] = _mm256_setzero_si256(); result[1] = _mm256_setzero_si256(); result[2] = _mm256_setzero_si256(); result[3] = _mm256_setzero_si256(); result[4] = _mm256_setzero_si256(); result[5] = _mm256_setzero_si256(); result[6] = _mm256_setzero_si256(); result[7] = old[0]; result[8] = old[1]; result[9] = old[2]; result[10] = old[3]; result[11] = old[4]; result[12] = old[5]; result[13] = old[6]; result[14] = old[7]; result[15] = old[8]; result[16] = old[9]; result[17] = old[10]; result[18] = old[11]; result[19] = old[12]; result[20] = old[13]; result[21] = old[14]; result[22] = old[15]; result[23] = old[16]; result[24] = old[17]; result[25] = old[18]; result[26] = old[19]; result[27] = old[20]; result[28] = old[21]; result[29] = old[22]; result[30] = old[23]; result[31] = old[24];
 
+
+// this represents -> maj(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
+// where x = a, y = b, z = c
 #define MAJ256()\
     AND256(a, b, temp1);\
     AND256(a, c, temp2);\
@@ -140,29 +155,34 @@ static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], cons
     XOR256(temp1, temp2, second);\
     XOR256(temp3, second, second);
 
-
+// this represents -> (rotate_right(x, 7) ^ rotate_right(x, 18) ^ rightshift(x,3))
+// where x = W[i - 15]
 #define SIGMA0()\
-    pad_rs_7(hashed_W[i - 15], temp1);\
-    pad_ls_7(hashed_W[i - 15], temp3);\
+    pad_rs_7(W[i - 15], temp1);\
+    pad_ls_7(W[i - 15], temp3);\
     OR256(temp1, temp3, temp3);\
-    pad_rs_18(hashed_W[i - 15], temp1);\
-    pad_ls_18(hashed_W[i - 15], temp2);\
+    pad_rs_18(W[i - 15], temp1);\
+    pad_ls_18(W[i - 15], temp2);\
     OR256(temp1, temp2, temp2);\
     XOR256(temp3, temp2, second);\
-    pad_rs_3(hashed_W[i - 15], temp1);\
+    pad_rs_3(W[i - 15], temp1);\
     XOR256(temp1, second, second);
 
+// this represents -> (rotate_right(x, 17) ^ rotate_right(x, 19) ^ rightshift(x,10))
+// where x = hashed_w[1 - 2]
 #define SIGMA1()\
-    pad_rs_17(hashed_W[i - 2], temp1);\
-    pad_ls_17(hashed_W[i - 2], temp3);\
+    pad_rs_17(W[i - 2], temp1);\
+    pad_ls_17(W[i - 2], temp3);\
     OR256(temp1, temp3, temp3);\
-    pad_rs_19(hashed_W[i - 2], temp1);\
-    pad_ls_19(hashed_W[i - 2], temp2);\
+    pad_rs_19(W[i - 2], temp1);\
+    pad_ls_19(W[i - 2], temp2);\
     OR256(temp1, temp2, temp2);\
     XOR256(temp3, temp2, first);\
-    pad_rs_10(hashed_W[i - 2], temp1);\
+    pad_rs_10(W[i - 2], temp1);\
     XOR256(temp1, first, first);
 
+//this represents -> (rotate_right(x, 2) ^ rotate_right(x, 13) ^ rotate_right(x, 22))
+// where x = a
 #define SIGMA2()\
     pad_rs_2(a, temp1);\
     pad_ls_2(a, temp3);\
@@ -176,7 +196,8 @@ static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], cons
     OR256(temp1, temp2, temp1);\
     XOR256(temp1, first, first);
 
-
+// this represents -> (rotate_right(x, 6) ^ rotate_right(x, 11) ^ rotate_right(x, 25))
+// where x = e
 #define SIGMA3()\
     pad_rs_6(e, temp1);\
     pad_ls_6(e, temp3);\
@@ -190,6 +211,8 @@ static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], cons
     OR256(temp1, temp2, temp1);\
     XOR256(temp1, first, first);
 
+// this represents -> ((x & y) ^ (~x & z)) 
+// where e = x, f = y, g = z
 #define CH256()\
     AND256(e, f, temp1);\
     ANDNOT256(e, g, third);\
@@ -267,7 +290,7 @@ void print_m256i(__m256i input, bool hex){
 //     }
 // }
 
-
+//bitsliced add of 2 __m256i
 inline void bitsliced_add(__m256i A[], __m256i B[], __m256i result[]){
     __m256i carry = {0}, x = {0}, y = {0};
     for(uint32_t i = 0; i < 32; i++){
