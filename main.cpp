@@ -1,3 +1,4 @@
+#include "util.cpp"
 #include "optimized_bssha256.cpp"
 #include "sha256.cpp"
 /** 
@@ -6,6 +7,7 @@
  **/
 #include "VariadicTable.h"
 
+// pretty print the benchmarked comparison between BS_SHA256 and normal SHA256
 void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucyclesbs, long long totalcpucyclesnm, size_t len){
     VariadicTable<string, string, long long, string, string, long long> vt({"SHA256 TYPE", "FILE SIZE" ,"CPU CYCLES", "TOTAL TIME", "SPEED", "HASHES PER SECOND"},
                                                             10);
@@ -17,7 +19,7 @@ void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucycl
 
     string transfer_rate_bs;
     string bs_speed;
-    if((1 / bs_mbps) > 1000){
+    if((1 / bs_mbps) >= 1000){
         transfer_rate_bs= " GB/s";
         bs_speed = to_string((1 / bs_mbps) / 1000);
     }
@@ -26,13 +28,13 @@ void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucycl
         bs_speed = to_string(1 / bs_mbps);
     }
 
-    string nmtotaltime = to_string(totaltimenm / 1000000000);
+    string nmtotaltime = to_string(totaltimenm / 1000000000); 
     nmtotaltime.push_back('s');
 
     string nm_speed;
     double nm_mbps = totaltimenm / 1000000000;
     string transfer_rate_nm;
-    if((1 / nm_mbps) > 1000){
+    if((1 / nm_mbps) >= 1000){
         transfer_rate_nm = " GB/s";
         nm_speed = to_string((1 / nm_mbps) / 1000);
     }
@@ -158,6 +160,7 @@ int main(int argc, char *argv[]){
         pretty_print(cummulative_time_bs, cummulative_time, secondinfo_bs - firstinfo_bs, secondinfo - firstinfo, len);
     }
     #if 0
+    // 
         //must be a power of 2, pow(2, 14) = 16kb
         // n_amount_charstofile(pow(2, 29));
         print_hashes(hashed_bs);
