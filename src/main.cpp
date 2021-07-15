@@ -14,7 +14,7 @@ void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucycl
 
     string bstotaltime = to_string(totaltimebs / 1000000000);
     bstotaltime.push_back('s');
-
+// 
     double bs_mbps = totaltimebs / 1000000000;
 
     string transfer_rate_bs;
@@ -114,33 +114,33 @@ int main(int argc, char *argv[]){
 
     if(isFile){
         if(argc > 2 && strlen(argv[2]) < 4){
-            appendLineToFile("resultbssha.txt", to_string(secondinfo_bs - firstinfo_bs));
-            appendLineToFile("resultnormalsha.txt", to_string(secondinfo - firstinfo));
-            appendLineToFile("resultbsshaseconds.txt", to_string(cummulative_time_bs));
-            appendLineToFile("resultshaseconds.txt", to_string(cummulative_time));
+            appendLineToFile("results/resultbssha.txt", to_string(secondinfo_bs - firstinfo_bs));
+            appendLineToFile("results/resultnormalsha.txt", to_string(secondinfo - firstinfo));
+            appendLineToFile("results/resultbsshaseconds.txt", to_string(cummulative_time_bs));
+            appendLineToFile("results/resultshaseconds.txt", to_string(cummulative_time));
         }
         else if(argc > 2 && strlen(argv[2]) == 4){
-            std::ifstream      file("resultbssha.txt");
+            std::ifstream      file("results/resultbssha.txt");
             long long bssum = 0;
             long long temp = 0;
             for(int i = 0; i < 1000; i++){
                 file >> temp;
                 bssum += temp;
             }
-            std::ifstream      fl("resultbsshaseconds.txt");
+            std::ifstream      fl("results/resultbsshaseconds.txt");
             long double bssec = 0;
             long double temp1 = 0;
             for(int i = 0; i < 1000; i++){
                 fl >> temp1;
                 bssec += temp1;
             }
-            std::ifstream      f("resultnormalsha.txt");
+            std::ifstream      f("results/resultnormalsha.txt");
             long long nmsum = 0;
             for(int i = 0; i < 1000; i++){
                 f >> temp;
                 nmsum += temp;
             }
-            std::ifstream      fsec("resultshaseconds.txt");
+            std::ifstream      fsec("results/resultshaseconds.txt");
             long double nmsec = 0;
             for(int i = 0; i < 1000; i++){
                 fsec >> temp1;
@@ -150,10 +150,10 @@ int main(int argc, char *argv[]){
             pretty_print(bssec / 1000, nmsec / 1000, bssum / 1000, nmsum / 1000, len);
                 
             ofstream delbs, delbssec, delnm, delnmsec;
-            delbs.open("resultbssha.txt", std::ios::out | std::ios::trunc);
-            delbssec.open("resultbsshaseconds.txt", std::ios::out | std::ios::trunc);
-            delnm.open("resultnormalsha.txt", std::ios::out | std::ios::trunc);
-            delnmsec.open("resultshaseconds.txt", std::ios::out | std::ios::trunc);
+            delbs.open("results/resultbssha.txt", std::ios::out | std::ios::trunc);
+            delbssec.open("results/resultbsshaseconds.txt", std::ios::out | std::ios::trunc);
+            delnm.open("results/resultnormalsha.txt", std::ios::out | std::ios::trunc);
+            delnmsec.open("results/resultshaseconds.txt", std::ios::out | std::ios::trunc);
         }
     }
     if(argc < 3){
