@@ -24,34 +24,37 @@ const __m256i always_zero[32] = {0};
 long long firstinfo_bs = 0;
 long long secondinfo_bs = 0;
 
+uint32_t global_counter = 0;
 // /**
 //  * Memset all variables to 0 each iteration of processing, otherwise alot of garbage values will be put into the hash
 //  */
 
 void memset_all(){
-    memset_256bit(a, _mm256_setzero_si256());
-    memset_256bit(b, _mm256_setzero_si256());
-    memset_256bit(c, _mm256_setzero_si256());
-    memset_256bit(d, _mm256_setzero_si256());
-    memset_256bit(e, _mm256_setzero_si256());
-    memset_256bit(f, _mm256_setzero_si256());
-    memset_256bit(g, _mm256_setzero_si256());
-    memset_256bit(h, _mm256_setzero_si256());
-    memset_256bit(first, _mm256_setzero_si256());
-    memset_256bit(second, _mm256_setzero_si256());
-    memset_256bit(third, _mm256_setzero_si256());
-    memset_256bit(last, _mm256_setzero_si256());
-    memset_256bit_single(&sum1, _mm256_setzero_si256());
-    memset_256bit_single(&sum2, _mm256_setzero_si256());
-    memset_256bit_single(&carry, _mm256_setzero_si256());
-    memset_256bit(t1, _mm256_setzero_si256());
-    memset_256bit(t2, _mm256_setzero_si256());
-    memset_256bit(temp1, _mm256_setzero_si256());
-    memset_256bit(temp2, _mm256_setzero_si256());
-    memset_256bit(temp3, _mm256_setzero_si256());
-    memset_256bit(x, _mm256_setzero_si256());
-    memset_256bit(y,_mm256_setzero_si256());
-    memset_256bit(z, _mm256_setzero_si256());
+    sum1 = _mm256_setzero_si256();
+    sum2 = _mm256_setzero_si256();
+    carry = _mm256_setzero_si256();
+    for(uint32_t i = 0; i < 32; i++){
+        a[i] = _mm256_setzero_si256();
+        b[i] = _mm256_setzero_si256();
+        c[i] = _mm256_setzero_si256();
+        d[i] = _mm256_setzero_si256();
+        e[i] = _mm256_setzero_si256();
+        f[i] = _mm256_setzero_si256();
+        g[i] = _mm256_setzero_si256();
+        h[i] = _mm256_setzero_si256();
+        first[i] = _mm256_setzero_si256();
+        second[i] = _mm256_setzero_si256();
+        third[i] = _mm256_setzero_si256();
+        last[i] = _mm256_setzero_si256();
+        t1[i] = _mm256_setzero_si256();
+        t2[i] = _mm256_setzero_si256();
+        temp1[i] = _mm256_setzero_si256();
+        temp2[i] = _mm256_setzero_si256();
+        temp3[i] = _mm256_setzero_si256();
+        x[i] = _mm256_setzero_si256();
+        y[i] = _mm256_setzero_si256();
+        z[i] = _mm256_setzero_si256();
+    }
 }
 
 
