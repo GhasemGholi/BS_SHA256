@@ -29,23 +29,9 @@ constexpr uint32_t K[64] = { // round constants
 //set a specific bit in a uint32_t
 #define SET_BIT(value, index, valueOfBit)  value &= ~(1 << index);\
                                            value |= valueOfBit; 
-// #if 
-// #define XOR_256_t(A, B, i, result) result[i] = A[i] ^ B[i]
-// #define XOR_256(A, B, i, result) result.val[i] = _mm256_xor_si256(A[i], B[i])
-// #define OR_256_t(A, B, i, result) result[i] = A[i] | B[i]
-// #define AND_256(A, B, i, result) result.val[i] = _mm256_and_si256(A[i], B[i])
-// #define AND_256_t(A, B, i, result) result[i] = A[i] & B[i]
-// #define ANDNOT_256(A, B, i, result) result.val[i] = _mm256_andnot_si256(A[i], B[i])
-// #define ANDNOT_256_t(A, B, i, result) result[i] = _mm256_andnot_si256(A[i], B[i])
-// #endif
-// #if 0
 
-
-// #define XOR256(A, B, result) result[0] = A[0] ^ B[0]; result[1] = A[1] ^ B[1]; result[2] = A[2] ^ B[2]; result[3] = A[3] ^ B[3]; result[4] = A[4] ^ B[4]; result[5] = A[5] ^ B[5]; result[6] = A[6] ^ B[6]; result[7] = A[7] ^ B[7]; result[8] = A[8] ^ B[8]; result[9] = A[9] ^ B[9]; result[10] = A[10] ^ B[10]; result[11] = A[11] ^ B[11]; result[12] = A[12] ^ B[12]; result[13] = A[13] ^ B[13]; result[14] = A[14] ^ B[14]; result[15] = A[15] ^ B[15]; result[16] = A[16] ^ B[16]; result[17] = A[17] ^ B[17]; result[18] = A[18] ^ B[18]; result[19] = A[19] ^ B[19]; result[20] = A[20] ^ B[20]; result[21] = A[21] ^ B[21]; result[22] = A[22] ^ B[22]; result[23] = A[23] ^ B[23]; result[24] = A[24] ^ B[24]; result[25] = A[25] ^ B[25]; result[26] = A[26] ^ B[26]; result[27] = A[27] ^ B[27]; result[28] = A[28] ^ B[28]; result[29] = A[29] ^ B[29]; result[30] = A[30] ^ B[30]; result[31] = A[31] ^ B[31];
 #define XOR256(A, B, result) result[0] = _mm256_xor_si256(A[0], B[0]); result[1] = _mm256_xor_si256(A[1], B[1]); result[2] = _mm256_xor_si256(A[2], B[2]); result[3] = _mm256_xor_si256(A[3], B[3]); result[4] = _mm256_xor_si256(A[4], B[4]); result[5] = _mm256_xor_si256(A[5], B[5]); result[6] = _mm256_xor_si256(A[6], B[6]); result[7] = _mm256_xor_si256(A[7], B[7]); result[8] = _mm256_xor_si256(A[8], B[8]); result[9] = _mm256_xor_si256(A[9], B[9]); result[10] = _mm256_xor_si256(A[10], B[10]); result[11] = _mm256_xor_si256(A[11], B[11]); result[12] = _mm256_xor_si256(A[12], B[12]); result[13] = _mm256_xor_si256(A[13], B[13]); result[14] = _mm256_xor_si256(A[14], B[14]); result[15] = _mm256_xor_si256(A[15], B[15]); result[16] = _mm256_xor_si256(A[16], B[16]); result[17] = _mm256_xor_si256(A[17], B[17]); result[18] = _mm256_xor_si256(A[18], B[18]); result[19] = _mm256_xor_si256(A[19], B[19]); result[20] = _mm256_xor_si256(A[20], B[20]); result[21] = _mm256_xor_si256(A[21], B[21]); result[22] = _mm256_xor_si256(A[22], B[22]); result[23] = _mm256_xor_si256(A[23], B[23]); result[24] = _mm256_xor_si256(A[24], B[24]); result[25] = _mm256_xor_si256(A[25], B[25]); result[26] = _mm256_xor_si256(A[26], B[26]); result[27] = _mm256_xor_si256(A[27], B[27]); result[28] = _mm256_xor_si256(A[28], B[28]); result[29] = _mm256_xor_si256(A[29], B[29]); result[30] = _mm256_xor_si256(A[30], B[30]); result[31] = _mm256_xor_si256(A[31], B[31]); 
-// #define OR256(A, B, result) result[0] = A[0] | B[0]; result[1] = A[1] | B[1]; result[2] = A[2] | B[2]; result[3] = A[3] | B[3]; result[4] = A[4] | B[4]; result[5] = A[5] | B[5]; result[6] = A[6] | B[6]; result[7] = A[7] | B[7]; result[8] = A[8] | B[8]; result[9] = A[9] | B[9]; result[10] = A[10] | B[10]; result[11] = A[11] | B[11]; result[12] = A[12] | B[12]; result[13] = A[13] | B[13]; result[14] = A[14] | B[14]; result[15] = A[15] | B[15]; result[16] = A[16] | B[16]; result[17] = A[17] | B[17]; result[18] = A[18] | B[18]; result[19] = A[19] | B[19]; result[20] = A[20] | B[20]; result[21] = A[21] | B[21]; result[22] = A[22] | B[22]; result[23] = A[23] | B[23]; result[24] = A[24] | B[24]; result[25] = A[25] | B[25]; result[26] = A[26] | B[26]; result[27] = A[27] | B[27]; result[28] = A[28] | B[28]; result[29] = A[29] | B[29]; result[30] = A[30] | B[30]; result[31] = A[31] | B[31];
 #define OR256(A, B, result) result[0] = _mm256_or_si256(A[0], B[0]); result[1] = _mm256_or_si256(A[1], B[1]); result[2] = _mm256_or_si256(A[2], B[2]); result[3] = _mm256_or_si256(A[3], B[3]); result[4] = _mm256_or_si256(A[4], B[4]); result[5] = _mm256_or_si256(A[5], B[5]); result[6] = _mm256_or_si256(A[6], B[6]); result[7] = _mm256_or_si256(A[7], B[7]); result[8] = _mm256_or_si256(A[8], B[8]); result[9] = _mm256_or_si256(A[9], B[9]); result[10] = _mm256_or_si256(A[10], B[10]); result[11] = _mm256_or_si256(A[11], B[11]); result[12] = _mm256_or_si256(A[12], B[12]); result[13] = _mm256_or_si256(A[13], B[13]); result[14] = _mm256_or_si256(A[14], B[14]); result[15] = _mm256_or_si256(A[15], B[15]); result[16] = _mm256_or_si256(A[16], B[16]); result[17] = _mm256_or_si256(A[17], B[17]); result[18] = _mm256_or_si256(A[18], B[18]); result[19] = _mm256_or_si256(A[19], B[19]); result[20] = _mm256_or_si256(A[20], B[20]); result[21] = _mm256_or_si256(A[21], B[21]); result[22] = _mm256_or_si256(A[22], B[22]); result[23] = _mm256_or_si256(A[23], B[23]); result[24] = _mm256_or_si256(A[24], B[24]); result[25] = _mm256_or_si256(A[25], B[25]); result[26] = _mm256_or_si256(A[26], B[26]); result[27] = _mm256_or_si256(A[27], B[27]); result[28] = _mm256_or_si256(A[28], B[28]); result[29] = _mm256_or_si256(A[29], B[29]); result[30] = _mm256_or_si256(A[30], B[30]); result[31] = _mm256_or_si256(A[31], B[31]); 
-// #define AND256(A, B, result) result[0] = A[0] & B[0]; result[1] = A[1] & B[1]; result[2] = A[2] & B[2]; result[3] = A[3] & B[3]; result[4] = A[4] & B[4]; result[5] = A[5] & B[5]; result[6] = A[6] & B[6]; result[7] = A[7] & B[7]; result[8] = A[8] & B[8]; result[9] = A[9] & B[9]; result[10] = A[10] & B[10]; result[11] = A[11] & B[11]; result[12] = A[12] & B[12]; result[13] = A[13] & B[13]; result[14] = A[14] & B[14]; result[15] = A[15] & B[15]; result[16] = A[16] & B[16]; result[17] = A[17] & B[17]; result[18] = A[18] & B[18]; result[19] = A[19] & B[19]; result[20] = A[20] & B[20]; result[21] = A[21] & B[21]; result[22] = A[22] & B[22]; result[23] = A[23] & B[23]; result[24] = A[24] & B[24]; result[25] = A[25] & B[25]; result[26] = A[26] & B[26]; result[27] = A[27] & B[27]; result[28] = A[28] & B[28]; result[29] = A[29] & B[29]; result[30] = A[30] & B[30]; result[31] = A[31] & B[31];
 #define AND256(A, B, result) result[0] = _mm256_and_si256(A[0], B[0]); result[1] = _mm256_and_si256(A[1], B[1]); result[2] = _mm256_and_si256(A[2], B[2]); result[3] = _mm256_and_si256(A[3], B[3]); result[4] = _mm256_and_si256(A[4], B[4]); result[5] = _mm256_and_si256(A[5], B[5]); result[6] = _mm256_and_si256(A[6], B[6]); result[7] = _mm256_and_si256(A[7], B[7]); result[8] = _mm256_and_si256(A[8], B[8]); result[9] = _mm256_and_si256(A[9], B[9]); result[10] = _mm256_and_si256(A[10], B[10]); result[11] = _mm256_and_si256(A[11], B[11]); result[12] = _mm256_and_si256(A[12], B[12]); result[13] = _mm256_and_si256(A[13], B[13]); result[14] = _mm256_and_si256(A[14], B[14]); result[15] = _mm256_and_si256(A[15], B[15]); result[16] = _mm256_and_si256(A[16], B[16]); result[17] = _mm256_and_si256(A[17], B[17]); result[18] = _mm256_and_si256(A[18], B[18]); result[19] = _mm256_and_si256(A[19], B[19]); result[20] = _mm256_and_si256(A[20], B[20]); result[21] = _mm256_and_si256(A[21], B[21]); result[22] = _mm256_and_si256(A[22], B[22]); result[23] = _mm256_and_si256(A[23], B[23]); result[24] = _mm256_and_si256(A[24], B[24]); result[25] = _mm256_and_si256(A[25], B[25]); result[26] = _mm256_and_si256(A[26], B[26]); result[27] = _mm256_and_si256(A[27], B[27]); result[28] = _mm256_and_si256(A[28], B[28]); result[29] = _mm256_and_si256(A[29], B[29]); result[30] = _mm256_and_si256(A[30], B[30]); result[31] = _mm256_and_si256(A[31], B[31]);
 #define ANDNOT256(A, B, result) result[0] = _mm256_andnot_si256(A[0], B[0]); result[1] = _mm256_andnot_si256(A[1], B[1]); result[2] = _mm256_andnot_si256(A[2], B[2]); result[3] = _mm256_andnot_si256(A[3], B[3]); result[4] = _mm256_andnot_si256(A[4], B[4]); result[5] = _mm256_andnot_si256(A[5], B[5]); result[6] = _mm256_andnot_si256(A[6], B[6]); result[7] = _mm256_andnot_si256(A[7], B[7]); result[8] = _mm256_andnot_si256(A[8], B[8]); result[9] = _mm256_andnot_si256(A[9], B[9]); result[10] = _mm256_andnot_si256(A[10], B[10]); result[11] = _mm256_andnot_si256(A[11], B[11]); result[12] = _mm256_andnot_si256(A[12], B[12]); result[13] = _mm256_andnot_si256(A[13], B[13]); result[14] = _mm256_andnot_si256(A[14], B[14]); result[15] = _mm256_andnot_si256(A[15], B[15]); result[16] = _mm256_andnot_si256(A[16], B[16]); result[17] = _mm256_andnot_si256(A[17], B[17]); result[18] = _mm256_andnot_si256(A[18], B[18]); result[19] = _mm256_andnot_si256(A[19], B[19]); result[20] = _mm256_andnot_si256(A[20], B[20]); result[21] = _mm256_andnot_si256(A[21], B[21]); result[22] = _mm256_andnot_si256(A[22], B[22]); result[23] = _mm256_andnot_si256(A[23], B[23]); result[24] = _mm256_andnot_si256(A[24], B[24]); result[25] = _mm256_andnot_si256(A[25], B[25]); result[26] = _mm256_andnot_si256(A[26], B[26]); result[27] = _mm256_andnot_si256(A[27], B[27]); result[28] = _mm256_andnot_si256(A[28], B[28]); result[29] = _mm256_andnot_si256(A[29], B[29]); result[30] = _mm256_andnot_si256(A[30], B[30]); result[31] = _mm256_andnot_si256(A[31], B[31]);
 
@@ -68,6 +54,19 @@ static inline void * memset_256bit(void *dest, const __m256i val){
     return dest;
 }
 
+
+//memset array __m256i of size 32 to 0
+static inline void * memset_256bit_zero(void *dest){
+    __m256i *ptr = (__m256i*)dest;
+    uint8_t len = 32;
+    while (len--){
+        *ptr++ = _mm256_setzero_si256();
+    }
+
+    return dest;
+}
+
+    
 //memset array __m256i of size 32 to val
 static inline void * memset_256bit_n(void *dest, const __m256i val, uint8_t from){
     __m256i *ptr = (__m256i*)dest;
@@ -84,9 +83,8 @@ static inline void * memcpy_256bit(void *dest, const void *src){
     __m256i* d = (__m256i*)dest;
     uint8_t len = 32;
     while (len--){
-        _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++));
+        *d++ = _mm256_load_si256(s++);
     }
-
     return dest;
 }
 
@@ -96,7 +94,7 @@ static inline void * memcpy_256bit_nbits(void *dest, const void *src, size_t fro
     __m256i* d = (__m256i*)dest;
     d += from;
     while (from++ < 32){
-        _mm256_storeu_si256(d++, _mm256_lddqu_si256(s++));
+        *d++ = _mm256_load_si256(s++);
     }
 
     return dest;
@@ -109,7 +107,7 @@ static inline void * memcpy_256bit_nbits(void *dest, const void *src, size_t fro
 
 // this shifts the __m256i array to the right by indices and pads the leftover bits to 0
 static inline void paddify_right_shift_temp(__m256i Old[],__m256i result[], const uint32_t &shift){
-    memset_256bit(result, _mm256_setzero_si256());
+    memset_256bit_zero(result);
     for(uint32_t i = 0, j = shift; i < 32 - shift; i++, j++){
         result[i] = Old[j];
     }
@@ -280,23 +278,24 @@ void print_m256i(__m256i input, bool hex){
     cout << endl;
 };
 
-// static inline void bitsliced_add(__m256i A[], __m256i B[], __m256i result[]){
-//     __m256i carry = {0}, x = {0}, y = {0};
-//     for(uint32_t i = 0; i < 32; ++i){
-//         x = A[i];
-//         y = B[i];
-//         result[i] = _mm256_xor_si256(_mm256_xor_si256(x, y), carry);
-//         carry = _mm256_or_si256(_mm256_and_si256(_mm256_xor_si256(x, y), carry), _mm256_and_si256(x, y));
-//     }
-// }
-
-//bitsliced add of 2 __m256i
-inline void bitsliced_add(__m256i A[], __m256i B[], __m256i result[]){
+// bitsliced add of 2 __m256i
+static inline void bitsliced_add(__m256i A[], __m256i B[], __m256i *result){
     __m256i carry = {0}, x = {0}, y = {0};
-    for(uint32_t i = 0; i < 32; i++){
+    for(uint32_t i = 0; i < 32; ++i){
         x = A[i];
         y = B[i];
-        result[i] = (x ^ y) ^ carry;
-        carry = ((x ^ y) & carry) | (x & y);
+        result[i] = _mm256_xor_si256(_mm256_xor_si256(x, y), carry);
+        carry = _mm256_or_si256(_mm256_and_si256(_mm256_xor_si256(x, y), carry), _mm256_and_si256(x, y));
     }
 }
+
+//bitsliced add of 2 __m256i
+// inline void bitsliced_add(__m256i A[], __m256i B[], __m256i result[]){
+//     __m256i carry = {0}, x = {0}, y = {0};
+//     for(uint32_t i = 0; i < 32; i++){
+//         x = A[i];
+//         y = B[i];
+//         result[i] = (x ^ y) ^ carry;
+//         carry = ((x ^ y) & carry) | (x & y);
+//     }
+// }
