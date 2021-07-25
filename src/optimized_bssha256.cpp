@@ -1,5 +1,5 @@
 // this file is called in a tree level, so no need to include other files
-
+int SINGLE = 0;
 void init_sha256();
 void parse_text_bssha(const string* listofinput, uint32_t len);
 void pre_processing_bs(__m256i text[32][32]); //padding
@@ -160,7 +160,6 @@ void processing(){
         OR256(W[i], third, W[i]);
         OR256(W[i], W[j + 3], W[i]);
     }
-
     // extend the first 16 words into the rest of the message schedule
     for(uint32_t i = 16; i < 64; ++i) {
         SIGMA1();
@@ -227,47 +226,47 @@ void parse_text_bssha(string *listofinput, uint32_t len){
     /** this below is a 256 parallel string test 
      set to 1 if want to test
      **/
-    #if 1
-    uint32_t res[8][32] = {0}, op[8][32] = {0};
-    for(uint32_t j = 0; j < len; ++j){
-        get_value_at_index(listofinput, res[0], j, 0);
-        get_value_at_index(listofinput, res[1], j, 32);
-        get_value_at_index(listofinput, res[2], j, 32 * 2);
-        get_value_at_index(listofinput, res[3], j, 32 * 3);
-        get_value_at_index(listofinput, res[4], j, 32 * 4);
-        get_value_at_index(listofinput, res[5], j, 32 * 5);
-        get_value_at_index(listofinput, res[6], j, 32 * 6);
-        get_value_at_index(listofinput, res[7], j, 32 * 7);
-        transposeblock2bitslice(res[0], op[0]);
-        transposeblock2bitslice(res[1], op[1]);
-        transposeblock2bitslice(res[2], op[2]);
-        transposeblock2bitslice(res[3], op[3]);
-        transposeblock2bitslice(res[4], op[4]);
-        transposeblock2bitslice(res[5], op[5]);
-        transposeblock2bitslice(res[6], op[6]);
-        transposeblock2bitslice(res[7], op[7]);
-        
-        bsconst8x(op[0], op[1], op[2], op[3], op[4], op[5], op[6], op[7], W[L++]);
-        if(L == 64){
-            processing();
-            L = 0;
-            blocks += 512;
-        } 
+    if(!SINGLE){
+        uint32_t res[8][32] = {0}, op[8][32] = {0};
+        for(uint32_t j = 0; j < len; ++j){
+            get_value_at_index(listofinput, res[0], j, 0);
+            get_value_at_index(listofinput, res[1], j, 32);
+            get_value_at_index(listofinput, res[2], j, 32 * 2);
+            get_value_at_index(listofinput, res[3], j, 32 * 3);
+            get_value_at_index(listofinput, res[4], j, 32 * 4);
+            get_value_at_index(listofinput, res[5], j, 32 * 5);
+            get_value_at_index(listofinput, res[6], j, 32 * 6);
+            get_value_at_index(listofinput, res[7], j, 32 * 7);
+            transposeblock2bitslice(res[0], op[0]);
+            transposeblock2bitslice(res[1], op[1]);
+            transposeblock2bitslice(res[2], op[2]);
+            transposeblock2bitslice(res[3], op[3]);
+            transposeblock2bitslice(res[4], op[4]);
+            transposeblock2bitslice(res[5], op[5]);
+            transposeblock2bitslice(res[6], op[6]);
+            transposeblock2bitslice(res[7], op[7]);
+            
+            bsconst8x(op[0], op[1], op[2], op[3], op[4], op[5], op[6], op[7], W[L++]);
+            if(L == 64){
+                processing();
+                L = 0;
+                blocks += 512;
+            } 
+        }
     }
-    #endif
 
     /** this below is a single string test 
      set to 1 if want to test
      **/
-    #if 0
-    string text = "Hello";
-    for(int i = 0; i < text.length(); i++){
-        bsconst(text[i], W[L++]);
-        if(L == 64){
-            processing();
-            L = 0;
-            blocks += 512;
-        } 
+    else {
+        string text = "Hello";
+        for(int i = 0; i < text.length(); i++){
+            bsconst(text[i], W[L++]);
+            if(L == 64){
+                processing();
+                L = 0;
+                blocks += 512;
+            } 
+        }
     }
-    #endif
 }
