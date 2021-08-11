@@ -69,6 +69,15 @@ string BytesToString(long long size){
     return s;
 }
 
+double getByteSize(long long size){
+    size_t bytes = abs(size);
+    double exponent = log(bytes) / log(1024);
+    uint32_t place = floor(exponent);
+    double num = nearbyint(bytes / pow(1024, place));
+    return (sign(size) * num);
+}
+
+
 void print_hashes(__m256i hashed[32][32]){
     uint32_t result[32][8][32] = {0};
     uint32_t tempval[32][8][32] = {0};
