@@ -6,6 +6,7 @@
  source: https://github.com/friedmud/variadic_table
  **/
 #include "VariadicTable.h"
+#include <openssl/sha.h>
 
 // pretty print the benchmarked comparison between BS_SHA256 and normal SHA256
 void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucyclesbs, long long totalcpucyclesnm, size_t len){
@@ -19,13 +20,19 @@ void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucycl
 
     string transfer_rate_bs;
     string bs_speed;
-    if((1 / bs_mbps) >= 1000){
+    string byteSize = BytesToString(len);
+    bool isGb = byteSize.find("GB") != std::string::npos;
+    long long sizeOfFile;
+
+    sizeOfFile = isGb == true ? len / 1000 : len;
+
+    if(getByteSize(len) * (1 / bs_mbps) >= 1000){
         transfer_rate_bs= " GB/s";
-        bs_speed = to_string((1 / bs_mbps) / 1000);
+        bs_speed = to_string((getByteSize(len) * (1 / bs_mbps) / 1000));
     }
     else{
         transfer_rate_bs = " MB/s";
-        bs_speed = to_string(1 / bs_mbps);
+        bs_speed = to_string(getByteSize(len) * (1 / bs_mbps));
     }
 
     string nmtotaltime = to_string(totaltimenm / 1000000000); 
@@ -34,13 +41,14 @@ void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucycl
     string nm_speed;
     double nm_mbps = totaltimenm / 1000000000;
     string transfer_rate_nm;
-    if((1 / nm_mbps) >= 1000){
+
+    if(getByteSize(len) * (1 / nm_mbps) >= 1000){
         transfer_rate_nm = " GB/s";
-        nm_speed = to_string((1 / nm_mbps) / 1000);
+        nm_speed = to_string((getByteSize(len) * (1 / nm_mbps) / 1000));
     }
     else{
         transfer_rate_nm = " MB/s";
-        nm_speed = to_string(1 / nm_mbps);
+        nm_speed = to_string(getByteSize(len) * (1 / nm_mbps));
     }    
 
     bs_speed.append(transfer_rate_bs);
@@ -54,6 +62,7 @@ void pretty_print(double totaltimebs, double totaltimenm, long long totalcpucycl
 }
 
 int main(int argc, char *argv[]){
+    firstinfo = secondinfo = 0;
     bool isFile = true, isSingle = false;
     string splitted_input[256];
     if(strcmp(argv[1], "single") == 0){
@@ -93,28 +102,62 @@ int main(int argc, char *argv[]){
     init_sha256();
 
     if(isFile){
-        sha256 sha;
-        string r_file = read_file(argv[1]);
-        string splitted_input[256];
+        #if 1
+            sha256 sha;
+            string r_file = read_file(argv[1]);
+            string splitted_input[256];
 
-        split_into_256_chunks(splitted_input, r_file);
-        sha.parse_text(r_file, len);
-        sha.pre_processing(hashed);
-        parse_text_bssha(splitted_input, len / 256);
+            split_into_256_chunks(splitted_input, r_file);
+            sha.parse_text(r_file, len);
+            sha.pre_processing(hashed);
+            parse_text_bssha(splitted_input, len / 256);
+        #endif
+        #if 0
+            string r_file = read_file(argv[1]);
+            string splitted_input[256];
+
+            split_into_256_chunks(splitted_input, r_file);
+            parse_text_bssha(splitted_input, len / 256);
+            unsigned char hash[SHA256_DIGEST_LENGTH];
+            SHA256_CTX sha256;
+            SHA256_Init(&sha256);
+            auto start = high_resolution_clock::now();
+            firstinfo = cpucycles_x86cpuinfo();
+            SHA256_Update(&sha256, r_file.c_str(), r_file.size());
+            SHA256_Final(hash, &sha256);
+            secondinfo = cpucycles_x86cpuinfo();
+            auto end = high_resolution_clock::now();
+            auto dur = duration_cast<nanoseconds>(end - start);
+            cummulative_time = dur.count();
+        #endif
     }
-
     if(!isFile){
         if(!isSingle){
             for(uint32_t i = 0; i < 256; i++){
-                sha256 sha;
-                sha.parse_text(splitted_input[i], len);
-                sha.pre_processing(hashed);
-                #if 0 // print normal hash
-                cout << "pos " << i << " ";
-                for(uint32_t i = 0; i < 32; i++){
-                    printf("%02x", hashed[i]);
-                }
-                cout << endl;
+                #if 0
+                    sha256 sha;
+                    sha.parse_text(splitted_input[i], len);
+                    sha.pre_processing(hashed);
+                    #if 0 // print normal hash
+                    cout << "pos " << i << " ";
+                    for(uint32_t i = 0; i < 32; i++){
+                        printf("%02x", hashed[i]);
+                    }
+                    cout << endl;
+                    #endif
+                #endif
+                #if 1
+                    unsigned char hash[SHA256_DIGEST_LENGTH];
+                    SHA256_CTX sha256;
+                    SHA256_Init(&sha256);
+                    auto start = high_resolution_clock::now();  
+                    firstinfo += cpucycles_x86cpuinfo();
+                    SHA256_Update(&sha256, splitted_input[i].c_str(), splitted_input[i].size());
+                    SHA256_Final(hash, &sha256);
+                    secondinfo += cpucycles_x86cpuinfo();
+                    auto end = high_resolution_clock::now();
+                    auto dur = duration_cast<nanoseconds>(end - start);
+                    cummulative_time += dur.count();
                 #endif
             }
         }
@@ -177,8 +220,8 @@ int main(int argc, char *argv[]){
     }
     #if 0
         //must be a power of 2, pow(2, 14) = 16kb
-        // n_amount_charstofile(pow(2, 29));
-        print_hashes(hashed_bs);
+        n_amount_charstofile(pow(2, 30));
+        // print_hashes(hashed_bs);
     #endif
 
     return 0;
